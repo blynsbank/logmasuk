@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blyns Bank - Log Masuk</title>
+    <!-- Memuat Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load CryptoJS globally -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+
+        :root {
+            --primary-color: #0d9488;
+            /* Teal-600 */
+            --primary-glow: rgba(13, 148, 136, 0.5);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000000;
+            /* Latar belakang utama hitam */
+            background-image:
+                radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
+                radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 1) 0, transparent 50%);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        /* --- GAYA KONTENA UTAMA --- */
+        .app-container {
+            width: 100%;
+            min-height: 100vh;
+            max-width: 420px;
+            background: #0a0a0a;
+            /* Hampir hitam */
+            position: relative;
+            color: white;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 1);
+        }
+
+        /* --- BACKGROUND BLOB EFFECTS --- */
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: 0;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .blob-1 {
+            top: -10%;
+            left: -20%;
+            width: 300px;
+            height: 300px;
+            background: #0d9488;
+        }
+
+        .blob-2 {
+            bottom: -10%;
+            right: -20%;
+            width: 250px;
+            height: 250px;
+            background: #3b82f6;
+        }
+
+        .screen {
+            display: none;
+            width: 100%;
+            min-height: 100vh;
+            animation: fadeIn 0.4s ease-out;
+            position: relative;
+            z-index: 1;
+        }
+
+        .screen:not(.hidden) {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* --- HEADER BLACK (UTK BLENDING LOGO) --- */
+        .black-header {
+            background-color: #000000;
+            /* Hitam Pekat */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        /* --- INPUT FIELDS --- */
+        .bank-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .bank-input:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary-color) !important;
+            box-shadow: 0 0 15px var(--primary-glow);
+            outline: none;
+        }
+
+        /* --- BUTANG --- */
+        .btn-primary-gradient {
+            background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+            box-shadow: 0 10px 20px -5px rgba(13, 148, 136, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -5px rgba(13, 148, 136, 0.6);
+        }
+
+        .btn-primary-gradient:disabled {
+            background: #334155;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+            color: #94a3b8;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary-color);
+            background: rgba(13, 148, 136, 0.1);
+        }
+
+        /* --- SPINNER --- */
+        .premium-spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(13, 148, 136, 0.1);
+            border-top: 3px solid #2dd4bf;
+            border-radius: 50%;
+            animation: spin 1s cubic-bezier(0.55, 0.055, 0.675, 0.19) infinite;
+        }
+
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* --- APPLE STYLE PIN DOTS --- */
+        .pin-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 1.5px solid #4b5563;
+            /* Gray-600 border */
+            transition: all 0.2s ease;
+        }
+
+        .pin-dot.active {
+            background-color: white;
+            border-color: white;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Ambient Blobs -->
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+
+        <!-- Layar 1: WELCOME SCREEN -->
+        <div id="welcomePage" class="screen h-screen items-center justify-center p-8 relative">
+            <div class="z-10 text-center w-full flex flex-col items-center">
+                <div class="mb-10 p-6 bg-black rounded-3xl border border-gray-800 shadow-2xl">
+                    <img src="https://i.postimg.cc/QdHXM5RS/Blyns-Bank-Head-Logo.png" alt="Blyns Bank Logo" class="h-24 w-auto object-contain">
+                </div>
+
+                <h1 class="text-4xl font-bold text-white mb-4 tracking-tight">
+                    Masa Depan <span class="text-teal-400">Kewangan</span>
+                </h1>
+                <p class="text-gray-400 mb-12 leading-relaxed max-w-xs mx-auto">
+                    Perbankan selamat & pantas di hujung jari anda.
+                </p>
+
+                <button id="btnStart" class="w-full py-4 btn-primary-gradient text-white font-bold rounded-2xl text-lg tracking-wide">
+                    Log Masuk Sekarang
+                </button>
+            </div>
+        </div>
+
+        <!-- Layar 2: LOGIN PAGE -->
+        <div id="loginPage" class="screen hidden pt-0 min-h-screen">
+            <!-- Header -->
+            <header class="black-header sticky top-0 z-20 px-6 py-6 flex items-center justify-center">
+                <img src="https://i.postimg.cc/QdHXM5RS/Blyns-Bank-Head-Logo.png" alt="Blyns Bank" class="h-12 w-auto">
+            </header>
+
+            <div class="p-6 flex flex-col flex-grow justify-center">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-white mb-2">Log Masuk</h2>
+                    <p class="text-gray-400">Sila masukkan butiran akaun anda.</p>
+                </div>
+
+                <form id="loginForm" class="space-y-5">
+                    <!-- EMAIL / PHONE -->
+                    <div class="group">
+                        <label class="block text-xs font-medium text-gray-500 mb-1 ml-1 uppercase tracking-wider">ID Pengguna</label>
+                        <input type="text" id="loginId" placeholder="Emel atau No. Telefon" required class="w-full p-4 bank-input rounded-xl text-sm">
+                    </div>
+
+                    <!-- PASSWORD -->
+                    <div class="group">
+                        <label class="block text-xs font-medium text-gray-500 mb-1 ml-1 uppercase tracking-wider">Kata Laluan</label>
+                        <input type="password" id="loginPassword" placeholder="••••••••" required class="w-full p-4 bank-input rounded-xl text-sm">
+                    </div>
+
+                    <button type="submit" class="w-full py-4 btn-primary-gradient text-white font-bold rounded-xl shadow-lg mt-4">
+                        Log Masuk
+                    </button>
+                </form>
+
+                <!-- Divider -->
+                <div class="relative py-8">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-700"></div>
+                    </div>
+                    <div class="relative flex justify-center">
+                        <span class="bg-[#0a0a0a] px-4 text-xs text-gray-500">ATAU</span>
+                    </div>
+                </div>
+
+                <!-- DAFTAR BARU BUTTON (EXTERNAL LINK) -->
+                <div class="text-center space-y-3">
+                    <p class="text-sm text-gray-400">Belum Mempunyai Akaun?</p>
+                    <!-- Menggunakan tag <a> untuk ke link luaran, atau JS redirect -->
+                    <button id="btnGoToExternalRegister" class="w-full py-4 btn-outline font-bold rounded-xl">
+                        Daftar Akaun Baru
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Layar 3: PIN LOCKSCREEN (GAYA APPLE) -->
+        <div id="pinPage" class="screen hidden pt-0 min-h-screen items-center justify-center">
+            <!-- HEADER BESAR & PENUH -->
+            <header class="black-header absolute top-0 w-full flex justify-center p-8">
+                <img src="https://i.postimg.cc/QdHXM5RS/Blyns-Bank-Head-Logo.png" alt="Blyns Bank" class="h-10 w-auto"> <!-- Logo dibesarkan ke h-20 -->
+            </header>
+
+            <div class="w-full max-w-xs flex flex-col items-center mt-20"> <!-- Margin atas ditambah untuk beri ruang logo besar -->
+                <!-- Icon Lock -->
+                <div class="mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                </div>
+
+                <h2 class="text-xl font-medium text-white mb-8">Masukkan Kod Laluan</h2>
+
+                <!-- 6 DOTS -->
+                <div class="flex gap-6 mb-8" id="pinDotsContainer">
+                    <div class="pin-dot"></div>
+                    <div class="pin-dot"></div>
+                    <div class="pin-dot"></div>
+                    <div class="pin-dot"></div>
+                    <div class="pin-dot"></div>
+                    <div class="pin-dot"></div>
+                </div>
+
+                <!-- INPUT TERSEMBUNYI (Untuk trigger keyboard) -->
+                <input type="number" id="authPinInput" pattern="\d*" inputmode="numeric" maxlength="6" class="opacity-0 absolute w-1 h-1 top-1/2 pointer-events-none">
+
+                <!-- INVISIBLE CLICK AREA TO FOCUS INPUT -->
+                <div id="pinClickArea" class="absolute inset-0 z-10 cursor-text"></div>
+
+                <!-- Butang Masuk (Z-Index tinggi supaya boleh klik) -->
+                <div class="relative z-20 mt-8 w-full px-8">
+                    <button id="btnFinalEnter" class="w-full text-teal-400 font-semibold text-lg hover:text-teal-300 transition">
+                        Masuk
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Layar Loading (Optional) -->
+        <div id="loadingPage" class="screen hidden items-center justify-center p-8 text-center h-screen">
+            <div class="premium-spinner mb-8"></div>
+            <h3 class="text-xl font-semibold text-white mb-2">Memproses</h3>
+            <p class="text-gray-500 text-sm">Sila tunggu sebentar...</p>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import {
+            initializeApp
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import {
+            getAuth,
+            signInWithEmailAndPassword,
+            setPersistence,
+            browserLocalPersistence,
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import {
+            getFirestore,
+            doc,
+            getDoc
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBpIKSxSnYfvBQia3rlOseBtnSVqThX18c",
+            authDomain: "superblyns.firebaseapp.com",
+            projectId: "superblyns",
+            storageBucket: "superblyns.appspot.com",
+            messagingSenderId: "1089867637612",
+            appId: "1:1089867637612:web:551d76367b4cfbb6fd4949"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        setPersistence(auth, browserLocalPersistence);
+
+        const screens = {
+            welcome: document.getElementById("welcomePage"),
+            login: document.getElementById("loginPage"),
+            pin: document.getElementById("pinPage")
+        };
+
+        const pinInput = document.getElementById("authPinInput");
+        const dots = document.querySelectorAll(".pin-dot");
+        let userPIN = null;
+
+        function showScreen(name) {
+            Object.values(screens).forEach(s => s.classList.add("hidden"));
+            screens[name].classList.remove("hidden");
+        }
+
+        document.getElementById("btnStart").addEventListener("click", () => showScreen("login"));
+
+        // LOGIN FORM
+        document.getElementById("loginForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const email = document.getElementById("loginId").value.trim();
+            const pass = document.getElementById("loginPassword").value.trim();
+            try {
+                await signInWithEmailAndPassword(auth, email, pass);
+                // Auto PIN
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        const ref = doc(db, "users", user.uid);
+                        const snap = await getDoc(ref);
+                        if (snap.exists()) {
+                            userPIN = snap.data().pin;
+                            showScreen("pin");
+                            setTimeout(() => pinInput.focus(), 500);
+                        } else {
+                            alert("Data pengguna tidak ditemui!");
+                            auth.signOut();
+                            showScreen("welcome");
+                        }
+                    }
+                });
+            } catch (err) {
+                alert("Login gagal!");
+                console.error(err);
+            }
+        });
+
+        // PIN UI
+        pinInput.addEventListener("input", () => {
+            const val = pinInput.value;
+            dots.forEach((dot, i) => {
+                i < val.length ? dot.classList.add("active") : dot.classList.remove("active");
+            });
+            if (val.length > 6) pinInput.value = val.slice(0, 6);
+        });
+
+        document.getElementById("btnFinalEnter").addEventListener("click", () => {
+            const enteredPIN = pinInput.value;
+            const hashedPIN = CryptoJS.SHA256(enteredPIN).toString();
+            if (hashedPIN === userPIN) {
+                window.location.href = "https://blynsbank.github.io/akaun/";
+            } else {
+                alert("PIN salah!");
+                pinInput.value = "";
+                dots.forEach(dot => dot.classList.remove("active"));
+            }
+        });
+
+        // AUTO PIN ON REFRESH
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const ref = doc(db, "users", user.uid);
+                const snap = await getDoc(ref);
+                if (snap.exists()) {
+                    userPIN = snap.data().pin;
+                    showScreen("pin");
+                    setTimeout(() => pinInput.focus(), 500);
+                } else {
+                    auth.signOut();
+                    showScreen("welcome");
+                }
+            } else {
+                showScreen("welcome");
+            }
+        });
+    </script>
+
+
+</body>
+
+</html>
