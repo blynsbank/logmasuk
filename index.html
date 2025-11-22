@@ -7,8 +7,6 @@
     <title>Blyns Bank - Log Masuk</title>
     <!-- Memuat Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Load CryptoJS globally -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
 
@@ -152,73 +150,6 @@
             background: rgba(13, 148, 136, 0.1);
         }
 
-        /* --- SPINNER --- */
-        .premium-spinner {
-            width: 60px;
-            height: 60px;
-            border: 3px solid rgba(13, 148, 136, 0.1);
-            border-top: 3px solid #2dd4bf;
-            border-radius: 50%;
-            animation: spin 1s cubic-bezier(0.55, 0.055, 0.675, 0.19) infinite;
-        }
-
-        @keyframes spin {
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* --- APPLE STYLE PIN DOTS --- */
-        .pin-dot {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            border: 1.5px solid #4b5563;
-            /* Gray-600 border */
-            transition: all 0.2s ease;
-        }
-
-        .pin-dot.active {
-            background-color: white;
-            border-color: white;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-        }
-
-        /* --- NUMPAD STYLES --- */
-        .numpad-btn {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background-color: #1f2937;
-            /* Gray-800 */
-            color: white;
-            font-size: 2rem;
-            font-weight: 300;
-            transition: all 0.1s ease-out;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            user-select: none;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-        }
-
-        .numpad-btn:active {
-            transform: scale(0.95);
-            background-color: #374151;
-            /* Gray-700 on press */
-        }
-
-        .numpad-action-btn {
-            background-color: transparent;
-            color: #4b5563;
-            /* Gray-500 for action buttons */
-        }
-
-        .numpad-action-btn:active {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-
         /* Message Modal Styles */
         #messageModal {
             position: fixed;
@@ -249,8 +180,8 @@
                 <div class="mb-10 p-6 bg-black rounded-3xl border border-gray-800 shadow-2xl">
                     <!-- LOGO BLYNS BANK ASAL DENGAN FALLBACK -->
                     <img src="https://i.postimg.cc/QdHXM5RS/Blyns-Bank-Head-Logo.png" 
-                         onerror="this.onerror=null; this.src='https://placehold.co/96x96/000000/0d9488?text=Blyns'" 
-                         alt="Blyns Bank Logo" class="h-24 w-auto object-contain">
+                        onerror="this.onerror=null; this.src='https://placehold.co/96x96/000000/0d9488?text=Blyns'" 
+                        alt="Blyns Bank Logo" class="h-24 w-auto object-contain">
                 </div>
 
                 <h1 class="text-4xl font-bold text-white mb-4 tracking-tight">
@@ -266,14 +197,14 @@
             </div>
         </div>
 
-        <!-- Layar 2: LOGIN PAGE -->
+        <!-- Layar 2: LOGIN PAGE (Sekarang layar utama selepas Welcome) -->
         <div id="loginPage" class="screen hidden pt-0 min-h-screen">
             <!-- Header -->
             <header class="black-header sticky top-0 z-20 px-6 py-6 flex items-center justify-center">
                 <!-- LOGO BLYNS BANK ASAL DENGAN FALLBACK -->
                 <img src="https://i.postimg.cc/QdHXM5RS/Blyns-Bank-Head-Logo.png" 
-                     onerror="this.onerror=null; this.src='https://placehold.co/48x48/000000/0d9488?text=Blyns'" 
-                     alt="Blyns Bank" class="h-12 w-auto">
+                    onerror="this.onerror=null; this.src='https://placehold.co/48x48/000000/0d9488?text=Blyns'" 
+                    alt="Blyns Bank" class="h-12 w-auto">
             </header>
 
             <div class="p-6 flex flex-col flex-grow justify-center">
@@ -283,19 +214,19 @@
                 </div>
 
                 <form id="loginForm" class="space-y-5">
-                    <!-- EMAIL / PHONE -->
+                    <!-- ID Pengguna -->
                     <div class="group">
                         <label class="block text-xs font-medium text-gray-500 mb-1 ml-1 uppercase tracking-wider">ID Pengguna</label>
                         <input type="text" id="loginId" placeholder="Emel atau No. Telefon" required class="w-full p-4 bank-input rounded-xl text-sm">
                     </div>
 
-                    <!-- PASSWORD -->
+                    <!-- Kata Laluan -->
                     <div class="group">
                         <label class="block text-xs font-medium text-gray-500 mb-1 ml-1 uppercase tracking-wider">Kata Laluan</label>
                         <input type="password" id="loginPassword" placeholder="••••••••" required class="w-full p-4 bank-input rounded-xl text-sm">
                     </div>
 
-                    <button type="submit" class="w-full py-4 btn-primary-gradient text-white font-bold rounded-xl shadow-lg mt-4">
+                    <button type="submit" id="submitLogin" class="w-full py-4 btn-primary-gradient text-white font-bold rounded-xl shadow-lg mt-4">
                         Log Masuk
                     </button>
                 </form>
@@ -320,85 +251,6 @@
             </div>
         </div>
 
-        <!-- Layar 3: PIN LOCKSCREEN (GAYA APPLE) -->
-        <div id="pinPage" class="screen hidden pt-0 min-h-screen flex-col items-center justify-between p-8">
-            <!-- HEADER BESAR & PENUH -->
-            <header class="black-header w-full flex justify-center p-8 absolute top-0">
-                <!-- LOGO BLYNS BANK ASAL DENGAN FALLBACK -->
-                <img src="https://i.postimg.cc/QdHXM5RS/Blyns-Bank-Head-Logo.png" 
-                     onerror="this.onerror=null; this.src='https://placehold.co/40x40/000000/0d9488?text=Blyns'" 
-                     alt="Blyns Bank" class="h-10 w-auto">
-            </header>
-
-            <div class="w-full max-w-xs flex flex-col items-center mt-32">
-                <!-- Icon Lock -->
-                <div class="mb-6">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                    </svg>
-                </div>
-
-                <h2 class="text-xl font-medium text-white mb-8">Masukkan Kod Laluan</h2>
-
-                <!-- 6 DOTS -->
-                <div class="flex gap-6 mb-8" id="pinDotsContainer">
-                    <div class="pin-dot"></div>
-                    <div class="pin-dot"></div>
-                    <div class="pin-dot"></div>
-                    <div class="pin-dot"></div>
-                    <div class="pin-dot"></div>
-                    <div class="pin-dot"></div>
-                </div>
-            </div>
-
-            <!-- INPUT TERSEMBUNYI (for state/keyboard) -->
-            <input type="password" id="authPinInput" pattern="\d*" inputmode="numeric" maxlength="6" value="" class="hidden">
-
-            <!-- NUMPAD (Main input source) -->
-            <div class="w-full px-6 pb-4 mb-4">
-                <div class="grid grid-cols-3 gap-6">
-                    <!-- Row 1 -->
-                    <button type="button" class="numpad-btn" data-key="1">1</button>
-                    <button type="button" class="numpad-btn" data-key="2">2</button>
-                    <button type="button" class="numpad-btn" data-key="3">3</button>
-                    <!-- Row 2 -->
-                    <button type="button" class="numpad-btn" data-key="4">4</button>
-                    <button type="button" class="numpad-btn" data-key="5">5</button>
-                    <button type="button" class="numpad-btn" data-key="6">6</button>
-                    <!-- Row 3 -->
-                    <button type="button" class="numpad-btn" data-key="7">7</button>
-                    <button type="button" class="numpad-btn" data-key="8">8</button>
-                    <button type="button" class="numpad-btn" data-key="9">9</button>
-                    <!-- Row 4 -->
-                    <div class="numpad-btn numpad-action-btn opacity-0 pointer-events-none"></div>
-                    <button type="button" class="numpad-btn" data-key="0">0</button>
-                    <button type="button" id="btnDelete" class="numpad-btn numpad-action-btn">
-                        <!-- X Icon -->
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 4H8l-7 7 7 7h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path>
-                            <line x1="18" y1="9" x2="12" y2="15"></line>
-                            <line x1="12" y1="9" x2="18" y2="15"></line>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Butang Masuk (diasingkan dari numpad) -->
-            <div class="relative z-20 w-full px-8 pb-8">
-                <button id="btnFinalEnter" disabled class="w-full text-teal-400 font-semibold text-lg hover:text-teal-300 transition disabled:opacity-30 disabled:hover:text-teal-400 disabled:cursor-not-allowed">
-                    Masuk
-                </button>
-            </div>
-        </div>
-
-        <!-- Layar Loading (Optional) -->
-        <div id="loadingPage" class="screen hidden items-center justify-center p-8 text-center h-screen">
-            <div class="premium-spinner mb-8"></div>
-            <h3 class="text-xl font-semibold text-white mb-2">Memproses</h3>
-            <p class="text-gray-500 text-sm">Sila tunggu sebentar...</p>
-        </div>
-
         <!-- Custom Message Modal -->
         <div id="messageModal" class="fixed max-w-sm w-[90%] bg-red-700/80 backdrop-blur-md p-4 rounded-xl shadow-2xl text-center text-white border border-red-500/50" role="alert">
             <p id="messageText" class="font-medium"></p>
@@ -413,16 +265,13 @@
         import {
             getAuth,
             signInWithEmailAndPassword,
-            onAuthStateChanged
+            onAuthStateChanged,
+            signOut
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import {
-            getFirestore,
-            doc,
-            getDoc,
-            setLogLevel
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // Catatan: Modul Firestore dibuang kerana logik PIN telah dibuang.
 
-        // Global Firebase Configuration (using the user's provided config for continuity)
+        // Global Firebase Configuration (menggunakan config asal anda)
         const firebaseConfig = {
             apiKey: "AIzaSyBpIKSxSnYfvBQia3rlOseBtnSVqThX18c",
             authDomain: "superblyns.firebaseapp.com",
@@ -435,33 +284,22 @@
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const db = getFirestore(app);
-        // setLogLevel('Debug'); // Enable for debugging Firestore
-
+        
+        // Elemen UI
         const screens = {
             welcome: document.getElementById("welcomePage"),
             login: document.getElementById("loginPage"),
-            pin: document.getElementById("pinPage"),
-            loading: document.getElementById("loadingPage")
         };
-
-        const pinInput = document.getElementById("authPinInput");
-        const dots = document.querySelectorAll(".pin-dot");
-        const numpadButtons = document.querySelectorAll(".numpad-btn[data-key]");
-        const btnDelete = document.getElementById("btnDelete");
-        const btnFinalEnter = document.getElementById("btnFinalEnter");
-        let userPIN = null; // Stored Hashed PIN
+        const loginForm = document.getElementById("loginForm");
+        const submitLoginButton = document.getElementById("submitLogin");
 
         // --- UTILITIES ---
 
         function showMessage(message, duration = 3000) {
             const modal = document.getElementById("messageModal");
             document.getElementById("messageText").textContent = message;
-
-            // Show the modal
             modal.classList.add("show");
 
-            // Hide the modal after duration
             setTimeout(() => {
                 modal.classList.remove("show");
             }, duration);
@@ -472,49 +310,15 @@
             screens[name].classList.remove("hidden");
         }
 
-        function updatePinUI(pinLength) {
-            dots.forEach((dot, i) => {
-                i < pinLength ? dot.classList.add("active") : dot.classList.remove("active");
-            });
-
-            // Enable/Disable Masuk button
-            btnFinalEnter.disabled = pinLength !== 6;
-        }
-
-        // --- PIN INPUT LOGIC (Numpad & Keyboard) ---
-
-        function appendPin(digit) {
-            if (pinInput.value.length < 6) {
-                pinInput.value += digit;
-                updatePinUI(pinInput.value.length);
+        function setFormLoading(isLoading) {
+            if (isLoading) {
+                submitLoginButton.disabled = true;
+                submitLoginButton.innerHTML = 'Memproses...';
+            } else {
+                submitLoginButton.disabled = false;
+                submitLoginButton.innerHTML = 'Log Masuk';
             }
         }
-
-        function deletePin() {
-            pinInput.value = pinInput.value.slice(0, -1);
-            updatePinUI(pinInput.value.length);
-        }
-
-        // Handle Numpad Clicks
-        numpadButtons.forEach(button => {
-            button.addEventListener("click", () => {
-                const key = button.getAttribute("data-key");
-                appendPin(key);
-            });
-        });
-
-        // Handle Delete Button
-        btnDelete.addEventListener("click", deletePin);
-
-        // Handle physical keyboard input (for desktop testing)
-        // This is kept but the UI focuses on the numpad
-        pinInput.addEventListener("input", (e) => {
-            const val = pinInput.value;
-            if (val.length > 6) {
-                pinInput.value = val.slice(0, 6);
-            }
-            updatePinUI(pinInput.value.length);
-        });
 
         // --- EVENT LISTENERS ---
 
@@ -523,107 +327,59 @@
         // External Registration Link Placeholder
         document.getElementById("btnGoToExternalRegister").addEventListener("click", () => {
             showMessage("Anda akan diarahkan ke laman Pendaftaran Blyns Bank.", 4000);
-            // Example of external redirect after a delay
-            setTimeout(() => {
-                // window.location.href = "https://blynsbank.github.io/register/";
-            }, 1000);
+            // window.location.href = "https://blynsbank.github.io/register/";
         });
 
         // LOGIN FORM
-        document.getElementById("loginForm").addEventListener("submit", async (e) => {
+        loginForm.addEventListener("submit", async (e) => {
             e.preventDefault();
+            setFormLoading(true);
+
             const email = document.getElementById("loginId").value.trim();
             const pass = document.getElementById("loginPassword").value.trim();
 
-            showScreen("loading");
-
             try {
-                const userCredential = await signInWithEmailAndPassword(auth, email, pass);
-                const user = userCredential.user;
+                // Langkah 1: Pengesahan Firebase Email/Password
+                await signInWithEmailAndPassword(auth, email, pass);
 
-                // Fetch PIN after successful login
-                const ref = doc(db, "users", user.uid);
-                const snap = await getDoc(ref);
-
-                if (snap.exists() && snap.data().pin) {
-                    userPIN = snap.data().pin;
-                    showScreen("pin");
-                    pinInput.value = ""; // Clear any previous attempts
-                    updatePinUI(0);
-                } else {
-                    showMessage("Data PIN pengguna tidak ditemui!", 5000);
-                    // Force sign out if we can't get the PIN, as security step 2 failed
-                    await auth.signOut();
-                    showScreen("login");
-                }
-
-            } catch (err) {
-                if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
-                    showMessage("ID Pengguna atau Kata Laluan salah.", 5000);
-                } else {
-                    showMessage(`Ralat Log Masuk: ${err.message}`, 7000);
-                    console.error("Login Error:", err);
-                }
-                showScreen("login");
-            }
-        });
-
-        // PIN VERIFICATION
-        document.getElementById("btnFinalEnter").addEventListener("click", () => {
-            if (pinInput.value.length !== 6) return;
-
-            showScreen("loading");
-
-            const enteredPIN = pinInput.value;
-            // Hash the entered PIN
-            const hashedPIN = CryptoJS.SHA256(enteredPIN).toString();
-
-            if (hashedPIN === userPIN) {
-                // Success! Redirect to main account page
+                // Langkah 2: Log Masuk Berjaya, teruskan redirect
                 showMessage("Log Masuk Berjaya!", 2000);
                 setTimeout(() => {
+                    // Redirect ke halaman utama akaun seperti yang diminta
                     window.location.href = "https://blynsbank.github.io/akaun/";
-                }, 1000);
-            } else {
-                // Failure
-                showMessage("Kod Laluan (PIN) salah. Sila cuba lagi.", 5000);
-                pinInput.value = "";
-                updatePinUI(0);
-                showScreen("pin");
+                }, 500); // 500ms slight delay for message display
+
+            } catch (err) {
+                // Handle Errors
+                let errorMessage = "Ralat Log Masuk. Sila cuba lagi.";
+                if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+                    errorMessage = "ID Pengguna atau Kata Laluan salah.";
+                } else if (err.code === 'auth/too-many-requests') {
+                    errorMessage = "Terlalu banyak percubaan. Sila cuba sebentar lagi.";
+                } else {
+                    console.error("Login Error:", err);
+                }
+                
+                showMessage(errorMessage, 5000);
+                setFormLoading(false);
             }
         });
 
-        // --- PERSISTENCE/AUTO PIN ON REFRESH ---
-
+        // --- PERSISTENCE CHECK ---
+        // Menguruskan pengguna yang sudah log masuk (selepas refresh)
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                const ref = doc(db, "users", user.uid);
-                try {
-                    const snap = await getDoc(ref);
-                    if (snap.exists() && snap.data().pin) {
-                        userPIN = snap.data().pin;
-                        showScreen("pin");
-                        pinInput.value = ""; // Clear input for fresh attempt
-                        updatePinUI(0);
-                    } else {
-                        // User is authenticated but PIN data is missing
-                        showMessage("Data akaun tidak lengkap. Sila log masuk semula.", 5000);
-                        await auth.signOut();
-                        showScreen("welcome");
-                    }
-                } catch (error) {
-                    showMessage(`Ralat memuat data pengguna: ${error.message}`, 7000);
-                    console.error("Auth check error:", error);
-                    showScreen("welcome");
-                }
+                // Jika pengguna sah selepas refresh, terus redirect (memintas skrin welcome/login)
+                showMessage("Akaun disahkan. Mengarahkan...", 1500);
+                setTimeout(() => {
+                    window.location.href = "https://blynsbank.github.io/akaun/";
+                }, 500);
             } else {
-                // No user signed in
+                // Tunjukkan skrin welcome jika tiada pengguna log masuk
                 showScreen("welcome");
             }
         });
     </script>
-
-
 </body>
 
 </html>
